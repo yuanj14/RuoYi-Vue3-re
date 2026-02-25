@@ -142,6 +142,7 @@ function handleLogin() {
 
 function getCode() {
   getCodeImg().then(res => {
+    // 默认开启写法 三目 undefined 使用true
     captchaEnabled.value = res.captchaEnabled === undefined ? true : res.captchaEnabled
     if (captchaEnabled.value) {
       codeUrl.value = "data:image/gif;base64," + res.img
