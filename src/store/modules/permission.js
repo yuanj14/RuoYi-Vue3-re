@@ -1,3 +1,5 @@
+import { defineStore } from 'pinia'
+import { ref } from 'vue'
 import auth from '@/plugins/auth'
 import router, { constantRoutes, dynamicRoutes } from '@/router'
 import { getRouters } from '@/api/menu'
@@ -8,52 +10,64 @@ import InnerLink from '@/layout/components/InnerLink'
 // 匹配views里面所有的.vue文件
 const modules = import.meta.glob('./../../views/**/*.vue')
 
-const usePermissionStore = defineStore(
-  'permission',
-  {
-    state: () => ({
-      routes: [],
-      addRoutes: [],
-      defaultRoutes: [],
-      topbarRouters: [],
-      sidebarRouters: []
-    }),
-    actions: {
-      setRoutes(routes) {
-        this.addRoutes = routes
-        this.routes = constantRoutes.concat(routes)
-      },
-      setDefaultRoutes(routes) {
-        this.defaultRoutes = constantRoutes.concat(routes)
-      },
-      setTopbarRoutes(routes) {
-        this.topbarRouters = routes
-      },
-      setSidebarRouters(routes) {
-        this.sidebarRouters = routes
-      },
-      generateRoutes(roles) {
-        return new Promise(resolve => {
-          // 向后端请求路由数据
-          getRouters().then(res => {
-            const sdata = JSON.parse(JSON.stringify(res.data))
-            const rdata = JSON.parse(JSON.stringify(res.data))
-            const defaultData = JSON.parse(JSON.stringify(res.data))
-            const sidebarRoutes = filterAsyncRouter(sdata)
-            const rewriteRoutes = filterAsyncRouter(rdata, false, true)
-            const defaultRoutes = filterAsyncRouter(defaultData)
-            const asyncRoutes = filterDynamicRoutes(dynamicRoutes)
-            asyncRoutes.forEach(route => { router.addRoute(route) })
-            this.setRoutes(rewriteRoutes)
-            this.setSidebarRouters(constantRoutes.concat(sidebarRoutes))
-            this.setDefaultRoutes(sidebarRoutes)
-            this.setTopbarRoutes(defaultRoutes)
-            resolve(rewriteRoutes)
-          })
-        })
-      }
-    }
-  })
+const usePermissionStore = defineStore('permission', () => {
+  const routes = ref([])
+  const addRoutes = ref([])
+  const defaultRoutes = ref([])
+  const topbarRouters = ref([])
+  const sidebarRouters = ref([])
+
+  const setRoutes = (nextRoutes) => {
+    addRoutes.value = nextRoutes
+    routes.value = constantRoutes.concat(nextRoutes)
+  }
+
+  const setDefaultRoutes = (nextRoutes) => {
+    defaultRoutes.value = constantRoutes.concat(nextRoutes)
+  }
+
+  const setTopbarRoutes = (nextRoutes) => {
+    topbarRouters.value = nextRoutes
+  }
+
+  const setSidebarRouters = (nextRoutes) => {
+    sidebarRouters.value = nextRoutes
+  }
+
+  const generateRoutes = (roles) => {
+    return new Promise(resolve => {
+      // 向后端请求路由数据
+      getRouters().then(res => {
+        const sdata = JSON.parse(JSON.stringify(res.data))
+        const rdata = JSON.parse(JSON.stringify(res.data))
+        const defaultData = JSON.parse(JSON.stringify(res.data))
+        const sidebarRoutes = filterAsyncRouter(sdata)
+        const rewriteRoutes = filterAsyncRouter(rdata, false, true)
+        const defaultRoutesData = filterAsyncRouter(defaultData)
+        const asyncRoutes = filterDynamicRoutes(dynamicRoutes)
+        asyncRoutes.forEach(route => { router.addRoute(route) })
+        setRoutes(rewriteRoutes)
+        setSidebarRouters(constantRoutes.concat(sidebarRoutes))
+        setDefaultRoutes(sidebarRoutes)
+        setTopbarRoutes(defaultRoutesData)
+        resolve(rewriteRoutes)
+      })
+    })
+  }
+
+  return {
+    routes,
+    addRoutes,
+    defaultRoutes,
+    topbarRouters,
+    sidebarRouters,
+    setRoutes,
+    setDefaultRoutes,
+    setTopbarRoutes,
+    setSidebarRouters,
+    generateRoutes
+  }
+})
 
 // 遍历后台传来的路由字符串，转换为组件对象
 function filterAsyncRouter(asyncRouterMap, lastRouter = false, type = false) {

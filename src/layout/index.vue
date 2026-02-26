@@ -7,7 +7,7 @@
         <navbar @setLayout="setLayout" />
         <tags-view v-if="needTagsView" />
       </div>
-      <!-- <app-main /> -->
+      <app-main />
       <settings ref="settingRef" />
     </div>
   </div>
