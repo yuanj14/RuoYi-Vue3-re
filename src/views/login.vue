@@ -52,8 +52,6 @@ const footerContent = defaultSettings.footerContent
 const userStore = useUserStore()
 const route = useRoute()
 const router = useRouter()
-const { proxy } = getCurrentInstance()
-
 const loginForm = ref({
   username: "admin",
   password: "admin123",
@@ -62,18 +60,19 @@ const loginForm = ref({
   uuid: ""
 })
 
+
 const loginRules = {
   username: [{ required: true, trigger: "blur", message: "请输入您的账号" }],
   password: [{ required: true, trigger: "blur", message: "请输入您的密码" }],
   code: [{ required: true, trigger: "change", message: "请输入验证码" }]
 }
-
+const loginRef = ref(null)
 const codeUrl = ref("")
 const loading = ref(false)
 // 验证码开关
 const captchaEnabled = ref(true)
 // 注册开关
-const register = ref(false)
+const register = ref(true)
 const redirect = ref(undefined)
 
 watch(route, (newRoute) => {
@@ -81,7 +80,7 @@ watch(route, (newRoute) => {
 }, { immediate: true })
 
 function handleLogin() {
-  proxy.$refs.loginRef.validate(valid => {
+  loginRef.value.validate(async (valid) => {
     if (valid) {
       loading.value = true
       // 勾选了需要记住密码设置在 cookie 中设置记住用户名和密码
@@ -96,7 +95,8 @@ function handleLogin() {
         Cookies.remove("rememberMe")
       }
       // 调用action的登录方法
-      userStore.login(loginForm.value).then(() => {
+      try {
+        await userStore.login(loginForm.value)
         const query = route.query
         const otherQueryParams = Object.keys(query).reduce((acc, cur) => {
           if (cur !== "redirect") {
@@ -105,13 +105,13 @@ function handleLogin() {
           return acc
         }, {})
         router.push({ path: redirect.value || "/", query: otherQueryParams })
-      }).catch(() => {
+      } catch (error) {
         loading.value = false
         // 重新获取验证码
         if (captchaEnabled.value) {
           getCode()
         }
-      })
+      }
     }
   })
 }

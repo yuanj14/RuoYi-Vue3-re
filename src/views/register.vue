@@ -70,22 +70,22 @@ const equalToPassword = (rule, value, callback) => {
   }
 }
 
-// const registerRules = {
-//   username: [
-//     { required: true, trigger: "blur", message: "请输入您的账号" },
-//     { min: 2, max: 20, message: "用户账号长度必须介于 2 和 20 之间", trigger: "blur" }
-//   ],
-//   password: [
-//     { required: true, trigger: "blur", message: "请输入您的密码" },
-//     { min: 5, max: 20, message: "用户密码长度必须介于 5 和 20 之间", trigger: "blur" },
-//     { pattern: /^[^<>"'|\\]+$/, message: "不能包含非法字符：< > \" ' \\\ |", trigger: "blur" }
-//   ],
-//   confirmPassword: [
-//     { required: true, trigger: "blur", message: "请再次输入您的密码" },
-//     { required: true, validator: equalToPassword, trigger: "blur" }
-//   ],
-//   code: [{ required: true, trigger: "change", message: "请输入验证码" }]
-// }
+const registerRules = {
+  username: [
+    { required: true, trigger: "blur", message: "请输入您的账号" },
+    { min: 2, max: 20, message: "用户账号长度必须介于 2 和 20 之间", trigger: "blur" }
+  ],
+  password: [
+    { required: true, trigger: "blur", message: "请输入您的密码" },
+    { min: 5, max: 20, message: "用户密码长度必须介于 5 和 20 之间", trigger: "blur" },
+    { pattern: /^[^<>"'|\\]+$/, message: "不能包含非法字符：< > \" ' \\\ |", trigger: "blur" }
+  ],
+  confirmPassword: [
+    { required: true, trigger: "blur", message: "请再次输入您的密码" },
+    { required: true, validator: equalToPassword, trigger: "blur" }
+  ],
+  code: [{ required: true, trigger: "change", message: "请输入验证码" }]
+}
 
 const codeUrl = ref("")
 const loading = ref(false)
